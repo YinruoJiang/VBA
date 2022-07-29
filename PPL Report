@@ -1,0 +1,71 @@
+Sub test()
+Dim CBOOK, TBOOK, RBOOK, TemBOOK As Workbook
+Dim mm, y As String
+Dim tem_col_a, tem_col_c As Long
+Dim tem_a, tem_c As Long
+
+On Error Resume Next
+
+
+'Declare month and year
+mm = Application.Text(Month(Date) - 1, "00")
+y = Right(Year(Date), 2)
+
+'Declare Array(Address)
+Dim ADDRESS(1 To 3) As String
+ADDRESS(1) = "C:\Users\Sherry.Jiang\Desktop\PPL_Reconciliation\DD_Reconciliation\ADV\DD Collections - Advent - " & Left(MonthName(Month(Date) - 1), 3) & " " & Year(Date) & ".xlsx"
+ADDRESS(2) = "C:\Users\Sherry.Jiang\Desktop\PPL_Reconciliation\DD_Reconciliation\ADV\AQ_ADV_DD_" & mm & y & ".xlsx"
+ADDRESS(3) = "C:\Users\Sherry.Jiang\Desktop\PPL_Reconciliation\DD_Reconciliation\ADV\Collection Report Reconciliation - " & MonthName(Month(Date) - 1) & " " & Year(Date) & "-DD.xlsx"
+
+ThisWorkbook.Sheets("Summary").Range("A1").CurrentRegion.ClearContents
+Set CBOOK = Workbooks.Open(ADDRESS(1)) 'CBOOK = Collection Report
+Call Trim(CBOOK)
+Call Pivottable(CBOOK, ThisWorkbook, 1)
+Application.DisplayAlerts = False
+CBOOK.Close
+Application.DisplayAlerts = True
+
+
+Set TBOOK = Workbooks.Open(ADDRESS(2)) 'TBOOK = Transmission Report
+Call Trim(TBOOK)
+Call Pivottable(TBOOK, ThisWorkbook, 3)
+Application.DisplayAlerts = False
+TBOOK.Close
+Application.DisplayAlerts = True
+
+With ThisWorkbook.Sheets("Summary")
+    .Columns("C:C").Select
+    With Selection
+        .NumberFormat = "Number"
+        .Value = .Value
+    End With
+    tem_col_a = .Range("A65536").End(xlUp).Row
+    tem_col_c = .Range("C65536").End(xlUp).Row
+    .Range("E1") = "Total Colleced Amount"
+    .Range("F1") = "Match1"
+    .Range("G1") = "Amount"
+    .Range("H1") = "Match2"
+    For tem_a = 2 To tem_col_a
+        .Range("E" & tem_a) = Application.WorksheetFunction.VLookup(.Range("C" & tem_a), .Columns("A:B"), 2, 0)
+        .Range("G" & tem_a) = Application.WorksheetFunction.VLookup(.Range("A" & tem_a), .Columns("C:D"), 2, 0)
+    Next
+    .Range("F2").Select
+    Application.CutCopyMode = False
+    ActiveCell.FormulaR1C1 = "=RC[-1]=RC[-2]"
+    .Range("F2").Select
+    Selection.AutoFill Destination:=Range("F2:F" & tem_col_c)
+    
+    .Range("H2").Select
+    Application.CutCopyMode = False
+    ActiveCell.FormulaR1C1 = "=RC[-1]=RC[-6]"
+    .Range("H2").Select
+    Selection.AutoFill Destination:=Range("H2:H" & tem_col_a)
+    
+    
+    
+    
+End With
+
+'Set RBOOK = Workbooks.Open(ADDRESS(3)) 'RBOOK = Reconciliation Report
+
+End Sub

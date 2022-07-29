@@ -1,0 +1,40 @@
+Sub QuickSort(arr As Variant, first As Long, last As Long)
+  
+  Dim vCentreVal As Variant, vTemp As Variant
+  
+  Dim lTempLow As Long
+  Dim lTempHi As Long
+  lTempLow = first
+  lTempHi = last
+  
+  vCentreVal = arr((first + last) \ 2)
+  Do While lTempLow <= lTempHi
+  
+    Do While arr(lTempLow) < vCentreVal And lTempLow < last
+      lTempLow = lTempLow + 1
+    Loop
+    
+    Do While vCentreVal < arr(lTempHi) And lTempHi > first
+      lTempHi = lTempHi - 1
+    Loop
+    
+    If lTempLow <= lTempHi Then
+    
+        ' Swap values
+        vTemp = arr(lTempLow)
+
+        arr(lTempLow) = arr(lTempHi)
+        arr(lTempHi) = vTemp
+      
+        ' Move to next positions
+        lTempLow = lTempLow + 1
+        lTempHi = lTempHi - 1
+      
+    End If
+    
+  Loop
+  
+  If first < lTempHi Then QuickSort arr, first, lTempHi
+  If lTempLow < last Then QuickSort arr, lTempLow, last
+  
+End Sub
